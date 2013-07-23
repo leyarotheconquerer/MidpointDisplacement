@@ -64,16 +64,19 @@ namespace MidpointDisplacement
         class Level_Iterator : public std::iterator<std::forward_iterator_tag, CornerSet>
         {
         public:
-            Level_Iterator(int level, bool diamondMode)
+            Level_Iterator(Grid* parent, int level, bool diamondMode)
             {
+                // Store the parent object
+                this->parent = parent;
+                
                 // Calculate the distance for each iteration
-                iterateWidth = (width - 1) / pow(2, level);
-                iterateHeight = (height - 1) / pow(2, level);
+                iterateWidth = (parent->width - 1) / pow(2, level);
+                iterateHeight = (parent->height - 1) / pow(2, level);
                 
                 // Store the mode in which to begin
                 p.diamondMode = diamondMode;
                 
-                // Set up the coordinates
+                // Set up the coordinates2222
                 if(!diamondMode)
                 {
                     p = getFirstRectangle();
@@ -142,7 +145,7 @@ namespace MidpointDisplacement
                         p.corner4 != other.p.corner4);
             }
             
-            CornerSet& operator*()
+            CornerSet* operator*()
             {
                 return &p;
             }
@@ -150,6 +153,7 @@ namespace MidpointDisplacement
         private:
             CornerSet p;
             int iterateWidth, iterateHeight;
+            Grid* parent;
             
             CornerSet getFirstRectangle()
             {
@@ -192,7 +196,7 @@ namespace MidpointDisplacement
                 temp.corner4Coor[0] = p.corner4Coor[0] + iterateWidth;
                 
                 // Check to see if the x coordinate has reached the width
-                if(p.corner3Coor[0] >= width)
+                if(p.corner3Coor[0] >= parent->width)
                 {
                     // Move to the next row
                     temp.corner1Coor[1] = p.corner1Coor[1] + iterateHeight;
@@ -220,7 +224,7 @@ namespace MidpointDisplacement
                 CornerSet temp;
                 
                 // Check to see if the x coordinate has reached the width
-                if(p.corner1Coor[0] >= width)
+                if(p.corner1Coor[0] >= parent->width)
                 {
                     // Get the positive shift width for the row shift
                     int posIterateWidth;
@@ -267,10 +271,10 @@ namespace MidpointDisplacement
             
             void calculateShades()
             {
-                p.corner1 = getShade(p.corner1Coor[0], p.corner1Coor[1]);
-                p.corner2 = getShade(p.corner2Coor[0], p.corner2Coor[1]);
-                p.corner4 = getShade(p.corner4Coor[0], p.corner4Coor[1]);
-                p.corner3 = getShade(p.corner3Coor[0], p.corner3Coor[1]);
+                p.corner1 = parent->getShade(p.corner1Coor[0], p.corner1Coor[1]);
+                p.corner2 = parent->getShade(p.corner2Coor[0], p.corner2Coor[1]);
+                p.corner4 = parent->getShade(p.corner4Coor[0], p.corner4Coor[1]);
+                p.corner3 = parent->getShade(p.corner3Coor[0], p.corner3Coor[1]);
             }
         };
         

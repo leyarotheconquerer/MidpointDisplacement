@@ -3,10 +3,11 @@
 
 #include "Grid.h"
 
-
 namespace MidpointDisplacement
 {
-
+    
+    class Grid;
+    
     class MidpointGenerator {
     public:
         MidpointGenerator();

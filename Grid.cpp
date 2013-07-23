@@ -1,5 +1,4 @@
 #include "Grid.h"
-#include <random>
 
 using namespace MidpointDisplacement;
 
@@ -25,7 +24,11 @@ Grid::Grid(float* corners, int width, int height)
     }
     
     // Initialize the grid
-    this->grid = new float[width][height];
+    this->grid = new float*[width];
+    for(int i = 0; i < width; i++)
+    {
+        this->grid[i] = new float[height];
+    }
     
     // Initialize the grid to invalid values so we can tell if generation is
     // incomplete.
@@ -47,19 +50,24 @@ Grid::Grid(float* corners, int width, int height)
 Grid::Grid(const Grid& orig)
 {
     // Store the dimensions
-    this->width = orig->width;
-    this->height = orig->height;
+    this->width = orig.width;
+    this->height = orig.height;
     
     // Initialize the grid
-    this->grid = new float[orig->width][orig->height];
+    this->grid = new float*[orig.width];
+    
+    for(int i = 0; i < orig.width; i++)
+    {
+        this->grid[i] = new float[orig.height];
+    }
     
     // Initialize the grid to invalid values so we can tell if generation is
     // incomplete.
-    for(int i = 0; i < orig->width; i++)
+    for(int i = 0; i < orig.width; i++)
     {
-        for(int j = 0; j < orig->height; j++)
+        for(int j = 0; j < orig.height; j++)
         {
-            this->grid[i][j] = orig[i][j];
+            this->grid[i][j] = orig.grid[i][j];
         }
     }
 }
@@ -73,7 +81,7 @@ Grid::~Grid() {
     delete[] this->grid;
 }
 
-Grid::setShade(float shade, int x, int y)
+void Grid::setShade(float shade, int x, int y)
 {
     // Perform some basic validation on input
     if(x >= 0 && x < this->width && y >= 0 && y < this->height)
@@ -82,7 +90,7 @@ Grid::setShade(float shade, int x, int y)
     }
 }
 
-Grid::getShade(int x, int y)
+float Grid::getShade(int x, int y)
 {
     // Perform some basic validation on input
     if(x < 0 || x >= this->width || y < 0 || y >= this->height)
