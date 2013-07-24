@@ -58,6 +58,16 @@ namespace MidpointDisplacement
         float getShade(int x, int y);
         
         /**
+         * @return Width of the Grid.
+         */
+        int getWidth();
+        
+        /**
+         * @return Height of the Grid.
+         */
+        int getHeight();
+        
+        /**
          * Iterates through each Corner set at a given level. Levels are
          * integers ranging from 0 (the top level) to maxDimension/2?
          */
@@ -282,6 +292,8 @@ namespace MidpointDisplacement
         float** grid;
         int width, height;
         int maxDimension;
+        
+        void initialize(float* corners, int width, int height);
     };
 
 }

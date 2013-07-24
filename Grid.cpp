@@ -4,10 +4,15 @@ using namespace MidpointDisplacement;
 
 Grid::Grid(float* corners)
 {
-    Grid(corners, width, height);
+    initialize(corners, 100, 100);
 }
 
 Grid::Grid(float* corners, int width, int height)
+{
+    initialize(corners, width, height);
+}
+
+void Grid::initialize(float* corners, int width, int height)
 {
     // Store the dimensions
     this->width = width;
@@ -99,4 +104,14 @@ float Grid::getShade(int x, int y)
     }
     
     return this->grid[x][y];
+}
+
+int Grid::getWidth()
+{
+    return this->width;
+}
+
+int Grid::getHeight()
+{
+    return this->height;
 }
