@@ -74,20 +74,28 @@ namespace MidpointDisplacement
         class Level_Iterator : public std::iterator<std::forward_iterator_tag, CornerSet>
         {
         public:
-            Level_Iterator(Grid* parent, int level, bool diamondMode)
+            void initialize(Grid* parent, CornerSet initial)
             {
                 // Store the parent object
                 this->parent = parent;
                 
                 // Calculate the distance for each iteration
-                iterateWidth = (parent->width - 1) / pow(2, level);
-                iterateHeight = (parent->height - 1) / pow(2, level);
+                iterateWidth = (parent->width - 1) / pow(2, initial.level);
+                iterateHeight = (parent->height - 1) / pow(2, initial.level);
                 
                 // Store the mode in which to begin
-                p.diamondMode = diamondMode;
+                p = initial;
                 
-                // Set up the coordinates2222
-                if(!diamondMode)
+                // Set up the coordinates
+                if(p.corner1Coor[0] == -1 && p.corner1Coor[1] == -1 &&
+                        p.corner2Coor[0] == -1 && p.corner2Coor[1] == -1 &&
+                        p.corner3Coor[0] == -1 && p.corner3Coor[1] == -1 &&
+                        p.corner4Coor[0] == -1 && p.corner4Coor[1] == -1)
+                {
+                    // Do nothing. This is a null iterator... This should probably
+                    // be handled more cleanly.
+                }
+                else if(!initial.diamondMode)
                 {
                     p = getFirstRectangle();
                 }
@@ -103,8 +111,21 @@ namespace MidpointDisplacement
                 if(p.corner1 == -1 || p.corner2 == -1 ||
                         p.corner4 == -1 || p.corner3 == -1)
                 {
-                    std::cerr << "Warning: Iterator returned invalid values.";
+                    std::cout << "Warning: Iterator returned invalid values.";
                 }
+            }
+            
+            Level_Iterator(Grid* parent, CornerSet initial)
+            {
+                initialize(parent, initial);
+            }
+            
+            Level_Iterator(Grid* parent, int level, bool diamondMode)
+            {
+                CornerSet temp;
+                temp.level = level;
+                temp.diamondMode = diamondMode;
+                initialize(parent, temp);
             }
             
             virtual ~Level_Iterator() {}
@@ -113,15 +134,21 @@ namespace MidpointDisplacement
              * Pre-increment
              */
             Level_Iterator& operator++()
-            {
+            {   
+                int level = p.level;
+                
                 if(!p.diamondMode)
                 {
                     p = getNextRectangle();
+                    p.diamondMode = false;
                 }
                 else
                 {
                     p = getNextDiamond();
+                    p.diamondMode = true;
                 }
+                
+                p.level = level;
                 
                 calculateShades();
                 
@@ -141,21 +168,50 @@ namespace MidpointDisplacement
             
             bool operator==(const Level_Iterator& other)
             {
-                return (p.corner1 == other.p.corner1 &&
-                        p.corner2 == other.p.corner2 &&
-                        p.corner3 == other.p.corner3 &&
-                        p.corner4 == other.p.corner4);
+                return (p.corner1Coor[0] == other.p.corner1Coor[0] &&
+                        p.corner1Coor[1] == other.p.corner1Coor[1] &&
+                        p.corner2Coor[0] == other.p.corner2Coor[0] &&
+                        p.corner2Coor[1] == other.p.corner2Coor[1] &&
+                        p.corner3Coor[0] == other.p.corner3Coor[0] &&
+                        p.corner3Coor[1] == other.p.corner3Coor[1] &&
+                        p.corner4Coor[0] == other.p.corner4Coor[0] &&
+                        p.corner4Coor[1] == other.p.corner4Coor[1] &&
+                        parent == other.parent);
+            }
+            
+            bool operator==(const CornerSet& other)
+            {
+                return (p.corner1Coor[0] == other.corner1Coor[0] &&
+                        p.corner1Coor[1] == other.corner1Coor[1] &&
+                        p.corner2Coor[0] == other.corner2Coor[0] &&
+                        p.corner2Coor[1] == other.corner2Coor[1] &&
+                        p.corner3Coor[0] == other.corner3Coor[0] &&
+                        p.corner3Coor[1] == other.corner3Coor[1] &&
+                        p.corner4Coor[0] == other.corner4Coor[0] &&
+                        p.corner4Coor[1] == other.corner4Coor[1]);
             }
             
             bool operator!=(const Level_Iterator& other)
             {
-                return (p.corner1 != other.p.corner1 ||
-                        p.corner2 != other.p.corner2 ||
-                        p.corner3 != other.p.corner3 ||
-                        p.corner4 != other.p.corner4);
+                return (!(*this == other));
             }
             
-            CornerSet* operator*()
+            bool operator!=(const CornerSet& other)
+            {
+                return (!(*this == other));
+            }
+            
+            CornerSet operator*()
+            {
+                return p;
+            }
+            
+            CornerSet* operator->()
+            {
+                return &p;
+            }
+            
+            const CornerSet* operator->() const
             {
                 return &p;
             }
@@ -167,32 +223,40 @@ namespace MidpointDisplacement
             
             CornerSet getFirstRectangle()
             {
-                p.corner1Coor[0] = 0;
-                p.corner1Coor[1] = 0;
+                CornerSet temp;
                 
-                p.corner2Coor[0] = iterateWidth;
-                p.corner2Coor[1] = 0;
+                temp.corner1Coor[0] = 0;
+                temp.corner1Coor[1] = 0;
                 
-                p.corner4Coor[0] = 0;
-                p.corner4Coor[1] = iterateHeight;
+                temp.corner2Coor[0] = iterateWidth;
+                temp.corner2Coor[1] = 0;
                 
-                p.corner3Coor[0] = iterateWidth;
-                p.corner3Coor[1] = iterateHeight;
+                temp.corner4Coor[0] = 0;
+                temp.corner4Coor[1] = iterateHeight;
+                
+                temp.corner3Coor[0] = iterateWidth;
+                temp.corner3Coor[1] = iterateHeight;
+                
+                return temp;
             }
             
             CornerSet getFirstDiamond()
             {
-                p.corner1Coor[0] = iterateWidth / 2;
-                p.corner1Coor[1] = -iterateHeight / 2;
+                CornerSet temp;
                 
-                p.corner2Coor[0] = iterateWidth;
-                p.corner2Coor[1] = 0;
+                temp.corner1Coor[0] = iterateWidth / 2;
+                temp.corner1Coor[1] = -iterateHeight / 2;
                 
-                p.corner3Coor[0] = iterateWidth / 2;
-                p.corner3Coor[1] = iterateHeight / 2;
+                temp.corner2Coor[0] = iterateWidth;
+                temp.corner2Coor[1] = 0;
                 
-                p.corner4Coor[0] = 0;
-                p.corner4Coor[1] = 0;
+                temp.corner3Coor[0] = iterateWidth / 2;
+                temp.corner3Coor[1] = iterateHeight / 2;
+                
+                temp.corner4Coor[0] = 0;
+                temp.corner4Coor[1] = 0;
+                
+                return temp;
             }
             
             CornerSet getNextRectangle()
@@ -213,6 +277,21 @@ namespace MidpointDisplacement
                     temp.corner2Coor[1] = p.corner2Coor[1] + iterateHeight;
                     temp.corner3Coor[1] = p.corner3Coor[1] + iterateHeight;
                     temp.corner4Coor[1] = p.corner4Coor[1] + iterateHeight;
+                    
+                    if(temp.corner4Coor[1] > parent->height)
+                    {
+                        temp.corner1Coor[0] = -1;
+                        temp.corner1Coor[1] = -1;
+                        
+                        temp.corner2Coor[0] = -1;
+                        temp.corner2Coor[1] = -1;
+                        
+                        temp.corner3Coor[0] = -1;
+                        temp.corner3Coor[1] = -1;
+                        
+                        temp.corner4Coor[0] = -1;
+                        temp.corner4Coor[1] = -1;
+                    }
                     
                     // Flip horizontal delta
                     iterateWidth = -iterateWidth;
@@ -287,6 +366,42 @@ namespace MidpointDisplacement
                 p.corner3 = parent->getShade(p.corner3Coor[0], p.corner3Coor[1]);
             }
         };
+        
+        /**
+         * Get an iterator for the beginning of the current object.
+         * @param level The level of subdivision for the iterator.
+         * @param diamondMode Whether or not the iterator should return diamonds
+         * or rectangles.
+         * @return The iterator.
+         */
+        Level_Iterator& begin(int level, bool diamondMode)
+        {
+            Level_Iterator* temp = new Level_Iterator(this, level, diamondMode);
+            return *temp;
+        }
+        
+        /**
+         * Get an iterator for the end of the current object.
+         * @param level The level of subdivision for the iterator.
+         * @param diamondMode Whether or not the iterator should return diamonds
+         * or rectangles.
+         * @return The iterator.
+         */
+        Level_Iterator& end(int level, bool diamondMode)
+        {
+            CornerSet corners;
+            corners.corner1Coor[0] = -1;
+            corners.corner1Coor[1] = -1;
+            corners.corner2Coor[0] = -1;
+            corners.corner2Coor[1] = -1;
+            corners.corner3Coor[0] = -1;
+            corners.corner3Coor[1] = -1;
+            corners.corner4Coor[0] = -1;
+            corners.corner4Coor[1] = -1;
+            corners.level = level;
+            corners.diamondMode = diamondMode;
+            Level_Iterator* temp = new Level_Iterator(this, corners);
+        }
         
     private:
         float** grid;
