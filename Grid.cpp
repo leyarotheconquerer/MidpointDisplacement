@@ -115,3 +115,8 @@ int Grid::getHeight()
 {
     return this->height;
 }
+
+int Grid::getMaxDimension()
+{
+    return this->maxDimension;
+}

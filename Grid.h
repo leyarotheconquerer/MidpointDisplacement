@@ -68,6 +68,11 @@ namespace MidpointDisplacement
         int getHeight();
         
         /**
+         * @return The maximum dimension of the Grid.
+         */
+        int getMaxDimension();
+        
+        /**
          * Iterates through each Corner set at a given level. Levels are
          * integers ranging from 0 (the top level) to maxDimension/2?
          */
@@ -111,7 +116,7 @@ namespace MidpointDisplacement
                 if(p.corner1 == -1 || p.corner2 == -1 ||
                         p.corner4 == -1 || p.corner3 == -1)
                 {
-                    std::cout << "Warning: Iterator returned invalid values.";
+                    std::cout << "Warning: Iterator returned invalid values." << std::endl;
                 }
             }
             
@@ -237,6 +242,9 @@ namespace MidpointDisplacement
                 temp.corner3Coor[0] = iterateWidth;
                 temp.corner3Coor[1] = iterateHeight;
                 
+                temp.level = p.level;
+                temp.diamondMode = p.diamondMode;
+                
                 return temp;
             }
             
@@ -256,41 +264,45 @@ namespace MidpointDisplacement
                 temp.corner4Coor[0] = 0;
                 temp.corner4Coor[1] = 0;
                 
+                temp.level = p.level;
+                temp.diamondMode = p.diamondMode;
+                
                 return temp;
             }
             
             CornerSet getNextRectangle()
             {
-                CornerSet temp;
-                
-                // Move to the next column
-                temp.corner1Coor[0] = p.corner1Coor[0] + iterateWidth;
-                temp.corner2Coor[0] = p.corner2Coor[0] + iterateWidth;
-                temp.corner3Coor[0] = p.corner3Coor[0] + iterateWidth;
-                temp.corner4Coor[0] = p.corner4Coor[0] + iterateWidth;
+                CornerSet tmp;
                 
                 // Check to see if the x coordinate has reached the width
-                if(p.corner3Coor[0] >= parent->width)
+                if((iterateWidth > 0 && p.corner3Coor[0] >= parent->width-1) ||
+                        (iterateWidth < 0 && p.corner4Coor[0] <= 0))
                 {
-                    // Move to the next row
-                    temp.corner1Coor[1] = p.corner1Coor[1] + iterateHeight;
-                    temp.corner2Coor[1] = p.corner2Coor[1] + iterateHeight;
-                    temp.corner3Coor[1] = p.corner3Coor[1] + iterateHeight;
-                    temp.corner4Coor[1] = p.corner4Coor[1] + iterateHeight;
+                    // Stay on the same column
+                    tmp.corner1Coor[0] = p.corner1Coor[0];
+                    tmp.corner2Coor[0] = p.corner2Coor[0];
+                    tmp.corner3Coor[0] = p.corner3Coor[0];
+                    tmp.corner4Coor[0] = p.corner4Coor[0];
                     
-                    if(temp.corner4Coor[1] > parent->height)
+                    // Move to the next row
+                    tmp.corner1Coor[1] = p.corner1Coor[1] + iterateHeight;
+                    tmp.corner2Coor[1] = p.corner2Coor[1] + iterateHeight;
+                    tmp.corner3Coor[1] = p.corner3Coor[1] + iterateHeight;
+                    tmp.corner4Coor[1] = p.corner4Coor[1] + iterateHeight;
+                    
+                    if(tmp.corner2Coor[1] >= parent->height-1)
                     {
-                        temp.corner1Coor[0] = -1;
-                        temp.corner1Coor[1] = -1;
+                        tmp.corner1Coor[0] = -1;
+                        tmp.corner1Coor[1] = -1;
                         
-                        temp.corner2Coor[0] = -1;
-                        temp.corner2Coor[1] = -1;
+                        tmp.corner2Coor[0] = -1;
+                        tmp.corner2Coor[1] = -1;
                         
-                        temp.corner3Coor[0] = -1;
-                        temp.corner3Coor[1] = -1;
+                        tmp.corner3Coor[0] = -1;
+                        tmp.corner3Coor[1] = -1;
                         
-                        temp.corner4Coor[0] = -1;
-                        temp.corner4Coor[1] = -1;
+                        tmp.corner4Coor[0] = -1;
+                        tmp.corner4Coor[1] = -1;
                     }
                     
                     // Flip horizontal delta
@@ -298,14 +310,23 @@ namespace MidpointDisplacement
                 }
                 else
                 {
+                    // Move to the next column
+                    tmp.corner1Coor[0] = p.corner1Coor[0] + iterateWidth;
+                    tmp.corner2Coor[0] = p.corner2Coor[0] + iterateWidth;
+                    tmp.corner3Coor[0] = p.corner3Coor[0] + iterateWidth;
+                    tmp.corner4Coor[0] = p.corner4Coor[0] + iterateWidth;
+                    
                     // Stay on the same level
-                    temp.corner1Coor[1] = p.corner1Coor[1];
-                    temp.corner2Coor[1] = p.corner2Coor[1];
-                    temp.corner3Coor[1] = p.corner3Coor[1];
-                    temp.corner4Coor[1] = p.corner4Coor[1];
+                    tmp.corner1Coor[1] = p.corner1Coor[1];
+                    tmp.corner2Coor[1] = p.corner2Coor[1];
+                    tmp.corner3Coor[1] = p.corner3Coor[1];
+                    tmp.corner4Coor[1] = p.corner4Coor[1];
                 }
                 
-                return temp;
+                tmp.diamondMode = p.diamondMode;
+                tmp.level = p.level;
+                
+                return tmp;
             }
             
             CornerSet getNextDiamond()
@@ -313,7 +334,8 @@ namespace MidpointDisplacement
                 CornerSet temp;
                 
                 // Check to see if the x coordinate has reached the width
-                if(p.corner1Coor[0] >= parent->width)
+                if((iterateWidth > 0 && p.corner2Coor[0] >= parent->width-1) ||
+                        (iterateWidth < 0 && p.corner1Coor[0] <= 0))
                 {
                     // Get the positive shift width for the row shift
                     int posIterateWidth;
@@ -338,6 +360,21 @@ namespace MidpointDisplacement
                     temp.corner3Coor[1] = p.corner3Coor[1] + (iterateHeight / 2);
                     temp.corner4Coor[1] = p.corner4Coor[1] + (iterateHeight / 2);
                     
+                    if(p.corner2Coor[1] >= parent->height-1)
+                    {
+                        temp.corner1Coor[0] = -1;
+                        temp.corner1Coor[1] = -1;
+                        
+                        temp.corner2Coor[0] = -1;
+                        temp.corner2Coor[1] = -1;
+                        
+                        temp.corner3Coor[0] = -1;
+                        temp.corner3Coor[1] = -1;
+                        
+                        temp.corner4Coor[0] = -1;
+                        temp.corner4Coor[1] = -1;
+                    }
+                    
                     iterateWidth = -iterateWidth;
                 }
                 else
@@ -354,6 +391,9 @@ namespace MidpointDisplacement
                     temp.corner3Coor[1] = p.corner3Coor[1];
                     temp.corner4Coor[1] = p.corner4Coor[1];
                 }
+                
+                temp.diamondMode = p.diamondMode;
+                temp.level = p.level;
                 
                 return temp;
             }
@@ -401,6 +441,8 @@ namespace MidpointDisplacement
             corners.level = level;
             corners.diamondMode = diamondMode;
             Level_Iterator* temp = new Level_Iterator(this, corners);
+            
+            return *temp;
         }
         
     private:
