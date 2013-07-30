@@ -6,6 +6,7 @@
 #include "TestSuite.h"
 #include "test/GridIteratorRectTest.h"
 #include "test/GridIteratorDiaTest.h"
+#include "test/GridIteratorTest.h"
 
 /*
  * Simple C++ Test Suite
@@ -38,6 +39,14 @@ int main(int argc, char** argv)
     TestSuite* diaIteratorTest = new GridIteratorDiaTest();
     diaIteratorTest->run();
     delete diaIteratorTest;
+    cout << "%SUITE_FINISHED% time=0" << endl;
+    
+    // Start the general iterator tests
+    cout << "%SUITE_STARTING% GridIteratorTest" << endl;
+    cout << "%SUITE_STARTED%" << endl;
+    TestSuite* iteratorTest = new GridIteratorTest();
+    iteratorTest->run();
+    delete iteratorTest;
     cout << "%SUITE_FINISHED% time=0" << endl;
     
     return (EXIT_SUCCESS);

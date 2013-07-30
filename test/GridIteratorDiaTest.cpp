@@ -40,10 +40,6 @@ void GridIteratorDiaTest::run()
     diaIncrement2(test);
     cout << "%TEST_FINISHED% time=0 DiamondIncrement2 (GridIteratorDiaTest)" << endl;
     
-    cout << "%TEST_STARTED% DiaDetail (GridIteratorDiaTest)" << endl;
-    diaDetail(test);
-    cout << "%TEST_FINISHED% time=0 DiaDetail (GridIteratorDiaTest)" << endl;
-    
     delete test;
 }
 
@@ -356,66 +352,4 @@ void GridIteratorDiaTest::diaIncrement2 (Grid* testGrid)
         }
         count++;
     }
-}
-
-void GridIteratorDiaTest::diaDetail(Grid* testGrid)
-{
-    cout << "GridIteratorDiaTest DiaDetail" << endl;
-    
-    int maxLevel = round(sqrt(testGrid->getMaxDimension()));
-    
-    // Level iteration
-    for(int i = 0; i <= maxLevel; i++)
-    {
-        // Rectangle iteration phase
-        int count = 0;
-        
-        for(Grid::Level_Iterator j= testGrid->begin(i, false); j != testGrid->end(i, false); j++)
-        {
-            if(count >= pow(2, 2*i))
-            {
-                cout << "%TEST_FAILED% time=0 testname=DiaDetail (GridIteratorDiaTest) "
-                        << "message=Exceeded maximum rectangle iterations. "
-                        << count << " out of " << pow(2, 2*i)
-                        << " at level " << i << "."
-                        << getCornerSetString(*j) << endl;
-                return;
-            }
-            count++;
-        }
-        
-        cout << "    Finished rectangle iterations at " << count << " of " << pow(2, 2*i) << " at level " << i << endl;
-        
-        // Diamond iteration phase
-        if(i < maxLevel)
-        {
-            count = 0;
-
-            for(Grid::Level_Iterator k = testGrid->begin(i, true); k != testGrid->end(i, false); k++)
-            {
-                if(count >= (pow(2, 2*i + 1)) * (pow(2, 2*i) + 1))
-                {
-                    cout << "%TEST_FAILED% time=0 testname=DiaDetail (GridIteratorDiaTest) "
-                            << "message=Exceeded maximum diamond iterations. "
-                            << count << " out of " << pow(2, 2*i + 1) * (pow(2, 2*i) + 1)
-                            << " at level " << i << "."
-                            << getCornerSetString(*k) << endl;
-                    return;
-                }
-                count++;
-            }
-
-            cout << "    Finished diamond iterations at " << count << " of " << pow(2, 2*i + 1) * (pow(2, 2*i) + 1) << " at level " << i << endl;
-        }
-        
-        if(i > 3)
-        {
-            cout << "%TEST_FAILED% time=0 testname=DiaDetail (GridIteratorDiaTest) "
-                    << "message=Exceeded maximum expected level. "
-                    << i << endl;
-            return;
-        }
-    }
-    
-    cout << "Max level of " << maxLevel << endl;
 }

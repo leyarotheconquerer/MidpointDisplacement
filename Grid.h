@@ -116,7 +116,7 @@ namespace MidpointDisplacement
                 if(p.corner1 == -1 || p.corner2 == -1 ||
                         p.corner4 == -1 || p.corner3 == -1)
                 {
-                    std::cout << "Warning: Iterator returned invalid values." << std::endl;
+                    //std::cout << "Warning: Iterator returned invalid values." << std::endl;
                 }
             }
             
@@ -414,7 +414,7 @@ namespace MidpointDisplacement
          * or rectangles.
          * @return The iterator.
          */
-        Level_Iterator& begin(int level, bool diamondMode)
+        Level_Iterator begin(int level, bool diamondMode)
         {
             Level_Iterator* temp = new Level_Iterator(this, level, diamondMode);
             return *temp;
@@ -427,7 +427,7 @@ namespace MidpointDisplacement
          * or rectangles.
          * @return The iterator.
          */
-        Level_Iterator& end(int level, bool diamondMode)
+        Level_Iterator end(int level, bool diamondMode)
         {
             CornerSet corners;
             corners.corner1Coor[0] = -1;
@@ -440,6 +440,7 @@ namespace MidpointDisplacement
             corners.corner4Coor[1] = -1;
             corners.level = level;
             corners.diamondMode = diamondMode;
+            
             Level_Iterator* temp = new Level_Iterator(this, corners);
             
             return *temp;

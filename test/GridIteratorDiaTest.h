@@ -18,7 +18,6 @@ private:
     void diaInequality(Grid* testGrid);
     void diaIncrement1(Grid* testGrid);
     void diaIncrement2(Grid* testGrid);
-    void diaDetail(Grid* testGrid);
 };
 
 #endif	/* GRIDITERATORDIATEST_H */
