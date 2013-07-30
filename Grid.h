@@ -23,7 +23,7 @@ namespace MidpointDisplacement
     public:
         /**
          * Generates a grid object with the 4 corners initialized to the given
-         * values. Uses a default resolution of 100x100.
+         * values. Uses a default resolution of 129x129.
          * @param corners An array containing the shades for the 4 corners.
          */
         Grid(float* corners);

@@ -4,7 +4,7 @@ using namespace MidpointDisplacement;
 
 Grid::Grid(float* corners)
 {
-    initialize(corners, 100, 100);
+    initialize(corners, 129, 129);
 }
 
 Grid::Grid(float* corners, int width, int height)

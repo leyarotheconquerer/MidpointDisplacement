@@ -49,7 +49,7 @@ void GridTest::gridCreation1()
         return;
     }
     
-    if(test->getWidth() != 100 || test->getHeight() != 100)
+    if(test->getWidth() != 129 || test->getHeight() != 129)
     {
         cout << "%TEST_FAILED% time=0 testname=GridCreation1 (GridTest) "
                 << "message=Incorrect Grid dimensions. " 

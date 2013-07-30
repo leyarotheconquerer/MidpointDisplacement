@@ -16,7 +16,7 @@ void GridIteratorTest::run()
 {
     cout << "%TEST_STARTED% StandardDetail (GridIteratorTest)" << endl;
     float corners[] = {1, 1, 1, 1};
-    Grid* standard = new Grid(corners, 9, 9);
+    Grid* standard = new Grid(corners, 129, 129);
     detail(standard, "StandardDetail");
     delete standard;
     cout << "%TEST_FINISHED% time=0 StandardDetail (GridIteratorTest)" << endl;
