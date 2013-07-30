@@ -58,6 +58,8 @@ Grid* MidpointGenerator::run(float* corners, int width, int height)
 
 Grid* MidpointGenerator::run(Grid* grid)
 {
+    srand(randomSeed);
+    
     // Calculate the maximum dimensions
     int maxLevel = round(log2(grid->getMaxDimension()));
     
@@ -132,7 +134,7 @@ void MidpointGenerator::fillCenterCoor(Grid* grid, CornerSet corners)
     y = totalY / 4;
     
     // Add a random factor to the shade
-    shade += ((rand() % 100) / 100 * .05) - 0.025;
+    shade += ((rand() % 100) / 100.0 * (randomFactor / 100.0)) - 0.025;
     
     // Set the shade of the calculated average coordinate
     grid->setShade(shade, x, y);
@@ -154,4 +156,14 @@ int MidpointGenerator::calculateDimension(int dimension)
     }
     
     return testDimension;
+}
+
+void MidpointGenerator::setRandomFactor(double factor)
+{
+    this->randomFactor = factor;
+}
+
+void MidpointGenerator::setSeed(int seed)
+{
+    this->randomSeed = seed;
 }

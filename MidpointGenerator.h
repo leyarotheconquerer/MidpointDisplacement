@@ -2,6 +2,7 @@
 #define	MIDPOINTGENERATOR_H
 
 #include "Grid.h"
+#include <ctime>
 
 namespace MidpointDisplacement
 {
@@ -11,7 +12,7 @@ namespace MidpointDisplacement
     
     class MidpointGenerator {
     public:
-        MidpointGenerator() {}
+        MidpointGenerator() { randomFactor = 5; randomSeed = time(NULL);}
         MidpointGenerator(const MidpointGenerator& orig) {}
         virtual ~MidpointGenerator() {}
         
@@ -56,7 +57,23 @@ namespace MidpointDisplacement
          * Shades are values between 0 and 1.
          */
         Grid* run(Grid* grid);
+        
+        /**
+         * Sets the random factor to be used in the generation process.
+         * @param factor The percent of random variation allowed in each average
+         * calculation.
+         */
+        void setRandomFactor(double factor);
+        
+        /**
+         * Sets the seed for the generation process.
+         * @param seed The seed to use for random generation.
+         */
+        void setSeed(int seed);
     private:
+        double randomFactor;
+        int randomSeed;
+        
         /**
          * Fills the center coordinate with the calculated shade.
          * @param grid The grid to modify.

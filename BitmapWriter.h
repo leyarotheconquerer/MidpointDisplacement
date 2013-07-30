@@ -9,16 +9,31 @@ class BitmapWriter {
 public:
     BitmapWriter() {}
     BitmapWriter(const BitmapWriter& orig) {}
-    virtual ~BitmapWriter() {}
+    virtual ~BitmapWriter()
+    {
+        for(int i = 0; i < contentWidth; i++)
+        {
+            delete[] contents[i];
+        }
+        delete[] contents;
+    }
     
+    /**
+     * Writes the data in the Bitmap Writer to a bitmap file.
+     * 
+     * Note: The contents must of the bitmap writer must be initialized...
+     * I'm currently handling this through subclassing. Consider a better
+     * method of handling this.
+     * @param fileName The name of the file to write.
+     */
     void write(string fileName);
 protected:
     struct rgbValue
     {
-        char r;
-        char g;
         char b;
-        char unused;
+        char g;
+        char r;
+        //char unused;
     };
     
     struct header

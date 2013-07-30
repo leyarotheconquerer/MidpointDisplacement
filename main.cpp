@@ -2,27 +2,38 @@
 #include <iomanip>
 
 #include "MidpointGenerator.h"
+#include "BitmapWriter.h"
+#include "GridBitmapWriter.h"
 
 using namespace std;
 
 int main(int argc, char** argv) {
 
     MidpointDisplacement::MidpointGenerator* generator = new MidpointDisplacement::MidpointGenerator();
+    GridBitmapWriter* testBitmap = new GridBitmapWriter();
+    MidpointDisplacement::Grid* grid;
     
-    cout << "Generating grid..." << endl;
+    cout << "Generating grid...";
     
-    MidpointDisplacement::Grid* grid = generator->run(9, 9);
+    // Set the roughness factor of the generation
+    generator->setRandomFactor(3.5);
     
-    cout << "Displaying grid..." << endl;
+    // Generate the grid
+    grid = generator->run(513, 513);
     
-    for(int i = 0; i < grid->getHeight(); i++)
-    {
-        for(int j = 0; j < grid->getWidth(); j++)
-        {
-            cout << std::setw(10) << grid->getShade(j, i) << " ";
-        }
-        cout << endl;
-    }
+    cout << " Done" << endl;
+    
+    cout << "Generating bitmap...";
+    
+    testBitmap->initialize(grid);
+    
+    testBitmap->write("output.bmp");
+    
+    cout << " Done" << endl;
+    
+    delete testBitmap;
+    
+    delete grid;
     
     cout << "Finished grid..." << endl;
     
