@@ -1,10 +1,3 @@
-/* 
- * File:   GridBitmapWriter.cpp
- * Author: Hazen
- * 
- * Created on July 30, 2013, 4:47 PM
- */
-
 #include "GridBitmapWriter.h"
 
 void GridBitmapWriter::initialize(Grid* grid)
@@ -22,7 +15,17 @@ void GridBitmapWriter::initialize(Grid* grid)
     {
         for(int j = 0; j < this->contentHeight; j++)
         {
-            char shade = (int)(grid->getShade(i, j) * 255);
+            float gradientShade = grid->getShade(i, j);
+            if(gradientShade < 0)
+            {
+                gradientShade = 0;
+            }
+            else if(gradientShade > 1)
+            {
+                gradientShade = 1;
+            }
+        
+            char shade = (int)(gradientShade * 255);
             
             this->contents[i][j].r = shade;
             this->contents[i][j].g = shade;

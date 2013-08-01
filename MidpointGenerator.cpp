@@ -33,8 +33,10 @@ Grid* MidpointGenerator::run(float* corners, int width, int height)
     int trueWidth = calculateDimension(width);
     int trueHeight = calculateDimension(height);
     
+    int trueDimension = trueHeight > trueWidth ? trueHeight : trueWidth;        
+    
     // Generate an appropriate grid object
-    Grid* grid = new Grid(corners, trueWidth, trueHeight);
+    Grid* grid = new Grid(corners, trueDimension, trueDimension);
     
     // Run the midpoint generator
     grid = run(grid);

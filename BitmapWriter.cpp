@@ -54,7 +54,8 @@ void BitmapWriter::write(string fileName)
             outputFile.write((char*)(&(this->contents[j][i])), sizeof(this->contents[j][i]));
         }
         // Pad to the end of the nearest byte
-        int paddingSize = 4 - (sizeof(rgbValue) * this->contentWidth) % 4;
+        //int paddingSize = 4 - (sizeof(rgbValue) * this->contentWidth) % 4;
+        int paddingSize = this->contentWidth % 4;
         int zero = 0; // There's got to be a better way of doing this...
         outputFile.write((char*)&zero, paddingSize);
     }
