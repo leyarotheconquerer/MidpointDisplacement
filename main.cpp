@@ -4,19 +4,27 @@
 #include "MidpointGenerator.h"
 #include "BitmapWriter.h"
 #include "GridBitmapWriter.h"
+#include <sstream>
+#include <string>
+#include <stack>
+#include <cstdlib>
 
 using namespace std;
 
 struct options
 {
-    int customSeed;
-    double customFactor;
-    int customWidth, height;
-    string newFileName;
-    float* customCorners;
+    int seed;
+    double factor;
+    int width, height;
+    string fileName;
+    float* corners;
     bool terminate;
+    bool generate;
 };
 
+options parseTerminalParams(int argc, char** argv);
+options resolveParameter(string argument, string param, options opt);
+options resolveArgument(string argument, options opt);
 options getOptions(options curOpt);
 options resetOptions();
 void generateGrid(options opt);
@@ -26,16 +34,176 @@ int main(int argc, char** argv) {
     options opt;
 
     cout << "Welcome to the Midpoint Generator V2." << endl;
-    opt = resetOptions();
     cout << endl;
+    
+    opt = parseTerminalParams(argc, argv);
     
     while(!opt.terminate)
     {
         opt = getOptions(opt);
     }
     
+    if(opt.generate)
+    {
+        generateGrid(opt);
+    }
+    
     return 0;
 }//*/
+
+/**
+ * Parses the command line arguments and returns the appropriate options.
+ * @param argc The number of arguments.
+ * @param argv A list of command line arguments.
+ * @return An initialized options structure.
+ */
+options parseTerminalParams(int argc, char** argv)
+{
+    options opt;
+    stack<string> arguments;
+    
+    // Start with the default options
+    opt = resetOptions();
+    opt.terminate = true; // Default to no menu
+    opt.generate = true; // Default to generation
+    
+    // Iterate through the command line arguments
+    for(int i = 1; i < argc; i++)
+    {
+        if(argv[i][0] == '-')
+        {
+            arguments.push(argv[i]);
+        }
+        else
+        {   
+            // Resolve this parameter using the last given argument
+            opt = resolveParameter(arguments.top(), argv[i], opt);
+            arguments.pop();
+        }
+    }
+    
+    // Resolve any unmatched arguments
+    while(arguments.size() > 0)
+    {
+        opt = resolveArgument(arguments.top(), opt);
+        arguments.pop();
+    }
+    
+    return opt;
+}
+
+options resolveArgument(string argument, options opt)
+{
+    if(argument == "-m")
+    {
+        opt.terminate = false;
+        opt.generate = false;
+    }
+    else
+    {
+        cout << "Usage:" << endl;
+        cout << "    midpoint2.exe [options]" << endl;
+        cout << "Options:" << endl;
+        cout << "    -m  Use menu interface to enter options." << endl;
+        cout << "    -w  Width of the generated grid." << endl;
+        cout << "    -h  Height of the generated grid." << endl;
+        cout << "    -s  Seed for random generator (Integer)." << endl;
+        cout << "    -r  Roughness factor (Percentage)." << endl;
+        cout << "    -c1 Top left corner shade (from 0 to 1)." << endl;
+        cout << "    -c2 Top right corner shade (from 0 to 1)." << endl;
+        cout << "    -c3 Bottom right corner shade (from 0 to 1)." << endl;
+        cout << "    -c4 Bottom left corner shade (from 0 to 1)." << endl;
+        cout << "    -f  Output filename (bitmap)." << endl;
+        exit(1);
+    }
+    
+    return opt;
+}
+
+/**
+ * Resolves a command line argument/parameter by evaluating its effects on an option structure.
+ * @param argument The argument name/type.
+ * @param param The parameter to the argument (if it needs one)
+ * @param opt The current option object.
+ * @return 
+ */
+options resolveParameter(string argument, string param, options opt)
+{
+    stringstream paramStream(param);
+    
+    if(param == "")
+    {
+        cout << "Usage:" << endl;
+        cout << "    midpoint2.exe [options]" << endl;
+        cout << "Options:" << endl;
+        cout << "    -m  Use menu interface to enter options." << endl;
+        cout << "    -w  Width of the generated grid." << endl;
+        cout << "    -h  Height of the generated grid." << endl;
+        cout << "    -s  Seed for random generator (Integer)." << endl;
+        cout << "    -r  Roughness factor (Percentage)." << endl;
+        cout << "    -c1 Top left corner shade (from 0 to 1)." << endl;
+        cout << "    -c2 Top right corner shade (from 0 to 1)." << endl;
+        cout << "    -c3 Bottom right corner shade (from 0 to 1)." << endl;
+        cout << "    -c4 Bottom left corner shade (from 0 to 1)." << endl;
+        cout << "    -f  Output filename (bitmap)." << endl;
+        exit(1);
+    }
+    else if(argument == "-w")
+    {
+        paramStream >> opt.width;
+    }
+    else if(argument == "-h")
+    {
+        paramStream >> opt.height;
+    }
+    else if(argument == "-s")
+    {
+        paramStream >> opt.seed;
+    }
+    else if(argument == "-r")
+    {
+        paramStream >> opt.factor;
+    }
+    else if(argument == "-c1")
+    {
+        paramStream >> opt.corners[0];
+    }
+    else if(argument == "-c2")
+    {
+        paramStream >> opt.corners[1];
+    }
+    else if(argument == "-c3")
+    {
+        paramStream >> opt.corners[2];
+    }
+    else if(argument == "-c4")
+    {
+        paramStream >> opt.corners[3];
+    }
+    else if(argument == "-f")
+    {
+        paramStream >> opt.fileName;
+    }
+    else
+    {
+        cout << "Usage:" << endl;
+        cout << "    midpoint2.exe [options]" << endl;
+        cout << "Options:" << endl;
+        cout << "    -m  Use menu interface to enter options." << endl;
+        cout << "    -w  Width of the generated grid." << endl;
+        cout << "    -h  Height of the generated grid." << endl;
+        cout << "    -s  Seed for random generator (Integer)." << endl;
+        cout << "    -r  Roughness factor (Percentage)." << endl;
+        cout << "    -c1 Top left corner shade (from 0 to 1)." << endl;
+        cout << "    -c2 Top right corner shade (from 0 to 1)." << endl;
+        cout << "    -c3 Bottom right corner shade (from 0 to 1)." << endl;
+        cout << "    -c4 Bottom left corner shade (from 0 to 1)." << endl;
+        cout << "    -f  Output filename (bitmap)." << endl;
+        exit(1);
+    }
+    
+    return opt;
+}
 
 /**
  * Gets the options of the user.
@@ -71,7 +239,7 @@ options getOptions(options curOpt)
             cin >> seed;
             cout << endl;
             
-            curOpt.customSeed = seed;
+            curOpt.seed = seed;
             
             break;
         case 1:
@@ -81,7 +249,7 @@ options getOptions(options curOpt)
             cin >> factor;
             cout << endl;
             
-            curOpt.customFactor = factor;
+            curOpt.factor = factor;
             
             break;
         case 2:
@@ -95,7 +263,7 @@ options getOptions(options curOpt)
             cin >> height;
             cout << endl;
             
-            curOpt.customWidth = width;
+            curOpt.width = width;
             curOpt.height = height;
             
             break;
@@ -105,36 +273,36 @@ options getOptions(options curOpt)
             cin >> fileName;
             cout << endl;
             
-            curOpt.newFileName = fileName;
+            curOpt.fileName = fileName;
             
             break;
         case 4:
             cout << "Please enter the initial corner shades..." << endl;
             
             cout << " Top Left: ";
-            cin >> curOpt.customCorners[0];
+            cin >> curOpt.corners[0];
             cout << endl;
             
             cout << " Top Right: ";
-            cin >> curOpt.customCorners[1];
+            cin >> curOpt.corners[1];
             cout << endl;
             
             cout << " Bottom Right: ";
-            cin >> curOpt.customCorners[2];
+            cin >> curOpt.corners[2];
             cout << endl;
             
             cout << " Bottom Left: ";
-            cin >> curOpt.customCorners[3];
+            cin >> curOpt.corners[3];
             cout << endl;
             
             break;
         case 5:
             cout << "Your current options are as follows..." << endl;
-            cout << " Seed (0-default): " << curOpt.customSeed << endl;
-            cout << " Roughness Factor: " << curOpt.customFactor << endl;
-            cout << " Dimensions (0x0 -> 129x129 default): " << curOpt.customWidth << "x" << curOpt.height << endl;
-            cout << " Initial corners (-1 -> random): (" << curOpt.customCorners[0] << ", " << curOpt.customCorners[1] << ", " << curOpt.customCorners[2] << ", " << curOpt.customCorners[3] << ")" << endl;
-            cout << " Filename (output.bmp default): " << curOpt.newFileName << endl;
+            cout << " Seed (0-default): " << curOpt.seed << endl;
+            cout << " Roughness Factor: " << curOpt.factor << endl;
+            cout << " Dimensions (0x0 -> 129x129 default): " << curOpt.width << "x" << curOpt.height << endl;
+            cout << " Initial corners (-1 -> random): (" << curOpt.corners[0] << ", " << curOpt.corners[1] << ", " << curOpt.corners[2] << ", " << curOpt.corners[3] << ")" << endl;
+            cout << " Filename (output.bmp default): " << curOpt.fileName << endl;
             cout << endl;
             
             break;
@@ -167,25 +335,25 @@ void generateGrid(options opt)
     flush(cout);
     
     // Set the roughness factor of the generation
-    if(opt.customSeed != 0)
+    if(opt.seed != 0)
     {
-        generator->setSeed(opt.customSeed);
+        generator->setSeed(opt.seed);
     }
     
-    generator->setRandomFactor(opt.customFactor);
+    generator->setRandomFactor(opt.factor);
     
     // Generate the grid
-    if(opt.customWidth > 0 && opt.customCorners[0] == -1)
+    if(opt.width > 0 && opt.corners[0] == -1)
     {
-        grid = generator->run(opt.customWidth, opt.height);
+        grid = generator->run(opt.width, opt.height);
     }
-    else if(opt.customWidth > 0 && opt.customCorners[0] != -1)
+    else if(opt.width > 0 && opt.corners[0] != -1)
     {
-        grid = generator->run(opt.customCorners, opt.customWidth, opt.height);
+        grid = generator->run(opt.corners, opt.width, opt.height);
     }
-    else if(opt.customWidth <= 0 && opt.customCorners[0] != -1)
+    else if(opt.width <= 0 && opt.corners[0] != -1)
     {
-        grid = generator->run(opt.customCorners);
+        grid = generator->run(opt.corners);
     }
     else
     {
@@ -199,7 +367,7 @@ void generateGrid(options opt)
     
     testBitmap->initialize(grid);
     
-    testBitmap->write(opt.newFileName);
+    testBitmap->write(opt.fileName);
     
     cout << " Done" << endl;
     
@@ -214,17 +382,18 @@ options resetOptions()
 {
     options temp;
     
-    temp.customSeed = 0;
-    temp.customFactor = 5;
-    temp.customWidth = 0;
+    temp.seed = 0;
+    temp.factor = 5;
+    temp.width = 0;
     temp.height = 0;
-    temp.newFileName = "output.bmp";
+    temp.fileName = "output.bmp";
     temp.terminate = false;
+    temp.generate = false;
     
-    temp.customCorners = new float[4];
+    temp.corners = new float[4];
     for(int i = 0; i < 4; i++)
     {
-        temp.customCorners[i] = -1;
+        temp.corners[i] = -1;
     }
     
     return temp;
